@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Module {{ module_id }}</title></head>
+<body>
+    <h1>Từ mới - Module {{ module_id }}</h1>
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>STT</th>
+            <th>Từ mới</th>
+            <th>Dịch nghĩa</th>
+            <th>Chú thích</th>
+        </tr>
+        {% for t in terms %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ t[1] }}</td>
+            <td>{{ t[2] }}</td>
+            <td>{{ t[3] or "" }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <p><a href="{{ url_for('modules') }}">← Quay lại danh sách module</a></p>
+</body>
+</html>
