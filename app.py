@@ -27,18 +27,24 @@ def preprocess_terms(text, module_id=None):
     lower_text = text.lower()
     cursor = conn.cursor()
     if module_id:
-        cursor.execute("SELECT english, vietnamese FROM Terms WHERE module = ?", module_id)
+        cursor.execute("SELECT english, vietnamese, note FROM Terms WHERE module = ?", module_id)
     else:
-        cursor.execute("SELECT english, vietnamese FROM Terms")
+        cursor.execute("SELECT english, vietnamese, note FROM Terms")
 
     terms = cursor.fetchall()
 
-    for i, (english, vietnamese) in enumerate(terms):
+    for i, (english, vietnamese, note) in enumerate(terms):
         eng_lower = english.lower()
         if eng_lower in lower_text:
             placeholder = f"[[TERM{i}]]"
             lower_text = lower_text.replace(eng_lower, placeholder)
-            placeholders[placeholder] = f"{english} ({vietnamese})"
+            placeholders[placeholder] = f"<b>{vietnamese}</b>"
+
+
+            # Tooltip: hiện english + note khi hover
+            tooltip_text = f"{english} - {note}" if note else english
+            placeholders[placeholder] = f"<span data-bs-toggle='tooltip' title='{tooltip_text}'><b>{vietnamese}</b></span>"
+            
     return lower_text, placeholders
 
 
@@ -59,9 +65,15 @@ def index():
         module_id = int(module_id) if module_id else None
 
 
-        pre_text, placeholders = preprocess_terms(input_text, module_id)
-        translated = translator.translate(pre_text, src="en", dest="vi").text
-        result = postprocess_terms(translated, placeholders)
+
+         # Nếu người dùng không nhập gì thì tránh xử lý
+        if not input_text:
+            result = "<i>Vui lòng nhập văn bản cần dịch.</i>"
+        else:
+            
+            pre_text, placeholders = preprocess_terms(input_text, module_id)
+            translated = translator.translate(pre_text, src="en", dest="vi").text
+            result = postprocess_terms(translated, placeholders)
     return render_template("index.html", result=result)
 
 @app.route("/modules")

@@ -4,6 +4,24 @@
     <meta charset="UTF-8">
     <title>Từ điển chuyên ngành Demo</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .textarea-wrapper {
+            position: relative;
+        }
+        .clear-btn {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            border: none;
+            background: transparent;
+            font-size: 18px;
+            cursor: pointer;
+            color: #888;
+        }
+        .clear-btn:hover {
+            color: #000;
+        }
+    </style>
 </head>
 <body class="container mt-5">
     <h2>Từ điển chuyên ngành Demo</h2>
@@ -13,17 +31,39 @@
         <select name="module" class="form-select mb-3">
             <option value="">Tất cả</option>
             {% for i in range(1, 11) %}
-                <option value="{{ i }}">Module {{ i }}</option>
+                <option value="{{ i }}" {% if request.form.get('module') == i|string %}selected{% endif %}>Module {{ i }}</option>
             {% endfor %}
         </select>
 
-        <textarea name="text" class="form-control" rows="4" placeholder="Nhập đoạn văn tiếng Anh..."></textarea><br>
+        <!-- Gói textarea + nút X -->
+        <div class="textarea-wrapper">
+            <textarea id="inputText" name="text" class="form-control" rows="4" placeholder="Nhập đoạn văn tiếng Anh...">{{ request.form.get('text', '') }}</textarea>
+            <button type="button" class="clear-btn" onclick="clearInput()">×</button>
+        </div>
+        <br>
         <button type="submit" class="btn btn-primary">Dịch</button>
     </form>
 
     <div class="mt-4">
         <h4>Kết quả:</h4>
-        <p>{{ result|safe }}</p>
+        <p style="white-space: pre-line;">{{ result|safe }}</p>
     </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Kích hoạt tooltip
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+
+        // Hàm xóa nội dung textarea + focus lại
+        function clearInput() {
+            let textarea = document.getElementById("inputText");
+            textarea.value = "";
+            textarea.focus();
+        }
+    </script>
 </body>
 </html>
